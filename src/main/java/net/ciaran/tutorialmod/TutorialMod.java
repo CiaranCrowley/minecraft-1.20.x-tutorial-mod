@@ -1,6 +1,7 @@
 package net.ciaran.tutorialmod;
 
 import com.mojang.logging.LogUtils;
+import net.ciaran.tutorialmod.item.ModCreativeModeTabs;
 import net.ciaran.tutorialmod.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -29,6 +30,8 @@ public class TutorialMod
     public TutorialMod()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        ModCreativeModeTabs.register(modEventBus);
 
         // Ensure that custom items are actually added to the game be making sure that the DeferredRegister is actually registered
         ModItems.register(modEventBus);
