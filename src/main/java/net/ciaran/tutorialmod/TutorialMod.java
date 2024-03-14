@@ -1,6 +1,7 @@
 package net.ciaran.tutorialmod;
 
 import com.mojang.logging.LogUtils;
+import net.ciaran.tutorialmod.block.ModBlocks;
 import net.ciaran.tutorialmod.item.ModCreativeModeTabs;
 import net.ciaran.tutorialmod.item.ModItems;
 import net.minecraft.client.Minecraft;
@@ -21,64 +22,59 @@ import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(TutorialMod.MOD_ID)
-public class TutorialMod
-{
-    // Define mod id in a common place for everything to reference
-    public static final String MOD_ID = "tutorialmod";
-    // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
-    public TutorialMod()
-    {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+public class TutorialMod {
+  // Define mod id in a common place for everything to reference
+  public static final String MOD_ID = "tutorialmod";
+  // Directly reference a slf4j logger
+  private static final Logger LOGGER = LogUtils.getLogger();
 
-        ModCreativeModeTabs.register(modEventBus);
+  public TutorialMod() {
+    IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Ensure that custom items are actually added to the game be making sure that the DeferredRegister is actually registered
-        ModItems.register(modEventBus);
+    ModCreativeModeTabs.register(modEventBus);
 
-        // Register the commonSetup method for modloading
-        modEventBus.addListener(this::commonSetup);
+    // Ensure that custom items are actually added to the game be making sure that the DeferredRegister is actually registered
+    ModItems.register(modEventBus);
+    ModBlocks.register(modEventBus);
 
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
+    // Register the commonSetup method for modloading
+    modEventBus.addListener(this::commonSetup);
 
-        // Register the item to a creative tab
-        modEventBus.addListener(this::addCreative);
+    // Register ourselves for server and other game events we are interested in
+    MinecraftForge.EVENT_BUS.register(this);
 
+    // Register the item to a creative tab
+    modEventBus.addListener(this::addCreative);
+
+  }
+
+  private void commonSetup(final FMLCommonSetupEvent event) {
+
+  }
+
+  // Add the example block item to the building blocks tab
+  private void addCreative(BuildCreativeModeTabContentsEvent event) {
+    if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+      event.accept(ModItems.SAPPHIRE);
+      event.accept(ModItems.RAW_SAPPHIRE);
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
+  }
 
-    }
+  // You can use SubscribeEvent and let the Event Bus discover methods to call
+  @SubscribeEvent
+  public void onServerStarting(ServerStartingEvent event) {
 
-    // Add the example block item to the building blocks tab
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
-        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.accept(ModItems.SAPPHIRE);
-            event.accept(ModItems.RAW_SAPPHIRE);
-        }
+  }
 
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
+  // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
+  @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+  public static class ClientModEvents {
     @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
-
+    public static void onClientSetup(FMLClientSetupEvent event) {
+      // Some client setup code
+      LOGGER.info("HELLO FROM CLIENT SETUP");
+      LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents
-    {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
-            // Some client setup code
-            LOGGER.info("HELLO FROM CLIENT SETUP");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        }
-    }
+  }
 }
